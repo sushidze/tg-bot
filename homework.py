@@ -118,7 +118,7 @@ def main():
                     send_message(bot, message)
                     logging.info('Сообщение о статусе ДЗ отправлено в чат')
     else:
-        logging.critical(f'Введены не все токены.')
+        logging.critical('Введены не все токены.')
 
 
 if __name__ == '__main__':
