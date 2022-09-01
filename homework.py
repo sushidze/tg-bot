@@ -1,11 +1,12 @@
-import time
 import logging
+import os
 import sys
+import time
 
+import requests
 import telegram
 from dotenv import load_dotenv
-import os
-import requests
+import exceptions
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ logger.addHandler(handler)
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+
 
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
@@ -42,7 +44,7 @@ def send_message(bot, message):
         logging.info(
             f'В чат {TELEGRAM_CHAT_ID} отправлено сообщение {message}.'
         )
-    except telegram.TelegramError:
+    except exceptions.ErrorMessage:
         logging.error(
             f'Ошибка при отправке сообщения в чат {TELEGRAM_CHAT_ID}.'
         )
@@ -58,17 +60,17 @@ def get_api_answer(current_timestamp):
         params=params
     )
     if response.status_code != 200:
-        raise requests.ConnectionError(response.status_code)
+        raise requests.ConnectionError(response.status_code, params)
     return response.json()
 
 
 def check_response(response):
     """Проверка ответа API на корректность."""
-    if type(response) is not dict:
+    if not isinstance(response, dict):
         logger.error('Ответ API не словарь.')
         raise TypeError('Ответ API не словарь.')
     homeworks = response['homeworks']
-    if type(homeworks) is not list:
+    if not isinstance(homeworks, list):
         logger.error('Не получили список домашних работ.')
         raise TypeError('Не получили список домашних работ.')
     return homeworks
@@ -90,35 +92,36 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверяем доступность переменных окружения."""
-    if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+    if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
         return True
     else:
+        logging.critical('Введены не все токены.')
         return False
 
 
 def main():
     """Основная логика работы бота."""
-    if check_tokens():
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        current_timestamp = int(time.time())
-        cash = ''
-        while True:
-            try:
-                response = get_api_answer(current_timestamp)
-                current_timestamp = response['current_date']
-                time.sleep(RETRY_TIME)
+    if not check_tokens():
+        exit()
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    current_timestamp = int(time.time())
+    cash = ''
+    while True:
+        try:
+            response = get_api_answer(current_timestamp)
+            current_timestamp = response['current_date']
 
-            except requests.ConnectionError as error:
-                logging.error(f'{error} Эндпоинт {ENDPOINT} недоступен.')
-            else:
-                homework = check_response(response)[0]
-                message = parse_status(homework)
-                if cash != message:
-                    cash = message
-                    send_message(bot, message)
-                    logging.info('Сообщение о статусе ДЗ отправлено в чат')
-    else:
-        logging.critical('Введены не все токены.')
+        except requests.ConnectionError as error:
+            logging.error(f'{error} Эндпоинт {ENDPOINT} недоступен.')
+        else:
+            homework = check_response(response)[0]
+            message = parse_status(homework)
+            if cash != message:
+                cash = message
+                send_message(bot, message)
+                logging.info('Сообщение о статусе ДЗ отправлено в чат')
+        finally:
+            time.sleep(RETRY_TIME)
 
 
 if __name__ == '__main__':
