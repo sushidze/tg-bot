@@ -1,4 +1,4 @@
-#!/Users/daniilsuhocev/Dev/homework_bot/venv3.7/bin/python3
+#!/Users/daniilsuhocev/Dev/homework_bot/venv3.7/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
