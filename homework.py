@@ -25,8 +25,8 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 
-RETRY_TIME = 600
-ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
+RETRY_TIME = 6
+ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/77'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 
@@ -72,7 +72,7 @@ def check_response(response):
     homeworks = response['homeworks']
     if not isinstance(homeworks, list):
         logger.error('Не получили список домашних работ.')
-        raise TypeError('Не получили список домашних работ.')
+        raise KeyError('Не получили список домашних работ.')
     return homeworks
 
 
@@ -92,12 +92,10 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверяем доступность переменных окружения."""
-    if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
-        return True
-    else:
+    return_value = all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
+    if not return_value:
         logging.critical('Введены не все токены.')
-        return False
-
+    return return_value
 
 def main():
     """Основная логика работы бота."""
@@ -110,16 +108,14 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             current_timestamp = response['current_date']
-
-        except requests.ConnectionError as error:
-            logging.error(f'{error} Эндпоинт {ENDPOINT} недоступен.')
-        else:
             homework = check_response(response)[0]
             message = parse_status(homework)
             if cash != message:
                 cash = message
                 send_message(bot, message)
                 logging.info('Сообщение о статусе ДЗ отправлено в чат')
+        except requests.ConnectionError as error:
+            logging.error(f'{error} Эндпоинт {ENDPOINT} недоступен.')
         finally:
             time.sleep(RETRY_TIME)
 
