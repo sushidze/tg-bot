@@ -97,6 +97,7 @@ def check_tokens():
         logging.critical('Введены не все токены.')
     return return_value
 
+
 def main():
     """Основная логика работы бота."""
     if not check_tokens():
