@@ -91,14 +91,13 @@ def main():
             response = get_api_answer(current_timestamp)
             current_timestamp = response['current_date']
             homeworks = check_response(response)
-            if homeworks:
-                homework = homeworks[0]
-                homework_status = homeworks[0].get('status')
-                if cash != homework_status:
-                    cash = homework_status
-                    message = parse_status(homework)
-                    send_message(bot, message)
-                    logger.info('Сообщение о статусе ДЗ отправлено в чат')
+            homework = homeworks[0]
+            homework_status = homeworks[0].get('status')
+            if cash != homework_status:
+                cash = homework_status
+                message = parse_status(homework)
+                send_message(bot, message)
+                logger.info('Сообщение о статусе ДЗ отправлено в чат')
         except exceptions.AnswerNot200 as error:
             logger.error(f'{error} Эндпоинт {ENDPOINT} недоступен.')
         except exceptions.AnswerNotCorrect:
