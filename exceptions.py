@@ -13,7 +13,7 @@ class Homeworksnotlist(Exception):
     pass
 
 
-class AnswerNotDict(Exception):
+class AnswerNotDict(KeyError):
     """Исключение возникает из-за того, что ответ API не словарь."""
     pass
 
@@ -24,7 +24,7 @@ class DictIsNotCorrect(Exception):
 
 
 class StatusIsNotCorrect(Exception):
-    """Исключение возникает из-за того, что в словаре нет поля homework_name."""
+    """Исключение возникает из-за того, что значения status нет в утверждённых."""
     pass
 
 

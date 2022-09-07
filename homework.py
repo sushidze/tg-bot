@@ -25,7 +25,7 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 
-RETRY_TIME = 600
+RETRY_TIME = 6
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -58,19 +58,13 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверка ответа API на корректность."""
-    if not isinstance(response, dict):
-        raise exceptions.AnswerNotDict('Ответ API не словарь.')
-    homeworks = response['homeworks']
-    if not isinstance(homeworks, list):
-        raise exceptions.Homeworksnotlist
-    if homeworks:
-        return homeworks
+    if not isinstance(response['homeworks'], list):
+        raise exceptions.AnswerNotDict('Некорректный ответ сервера')
+    return response['homeworks']
 
 
 def parse_status(homework):
     """Получение информации о конкретной домашней работе."""
-    if 'homework_name' not in homework:
-        raise exceptions.DictIsNotCorrect
     homework_name = homework['homework_name']
     homework_status = homework['status']
     verdict = HOMEWORK_STATUSES[homework_status]
@@ -81,15 +75,13 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверяем доступность переменных окружения."""
-    return_value = all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
-    if not return_value:
-        raise exceptions.NotAllTokens
-    return return_value
+    return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
 
 
 def main():
     """Основная логика работы бота."""
     if not check_tokens():
+
         exit()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time() - 12000000)
@@ -101,9 +93,10 @@ def main():
             homeworks = check_response(response)
             if homeworks:
                 homework = homeworks[0]
-                message = parse_status(homework)
-                if cash != message:
-                    cash = message
+                homework_status = homeworks[0].get('status')
+                if cash != homework_status:
+                    cash = homework_status
+                    message = parse_status(homework)
                     send_message(bot, message)
                     logger.info('Сообщение о статусе ДЗ отправлено в чат')
         except exceptions.AnswerNot200 as error:
@@ -115,7 +108,7 @@ def main():
         except exceptions.DictIsNotCorrect:
             logger.error('Неверный ответ сервера')
         except exceptions.StatusIsNotCorrect:
-            logging.error('Недокументированный статус домашней работы')
+            logger.error('Недокументированный статус домашней работы')
         except exceptions.NotAllTokens:
             logger.critical('Введены не все токены.')
         except exceptions.ErrorMessage:
