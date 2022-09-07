@@ -59,7 +59,7 @@ def get_api_answer(current_timestamp):
 def check_response(response):
     """Проверка ответа API на корректность."""
     if not isinstance(response['homeworks'], list):
-        raise exceptions.AnswerNotDict('Некорректный ответ сервера')
+        raise exceptions.AnswerNotCorrect('Некорректный ответ сервера')
     return response['homeworks']
 
 
@@ -101,7 +101,7 @@ def main():
                     logger.info('Сообщение о статусе ДЗ отправлено в чат')
         except exceptions.AnswerNot200 as error:
             logger.error(f'{error} Эндпоинт {ENDPOINT} недоступен.')
-        except exceptions.AnswerNotDict:
+        except exceptions.AnswerNotCorrect:
             logger.error('Ответ API не словарь.')
         except exceptions.Homeworksnotlist:
             logger.error('Не получили список домашних работ.')
