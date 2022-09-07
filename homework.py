@@ -52,6 +52,7 @@ def get_api_answer(current_timestamp):
         params=params
     )
     if response.status_code != 200:
+        logger.error(f'{params} Эндпоинт {ENDPOINT} недоступен.')
         raise exceptions.AnswerNot200(response.status_code, params)
     return response.json()
 
@@ -59,6 +60,7 @@ def get_api_answer(current_timestamp):
 def check_response(response):
     """Проверка ответа API на корректность."""
     if not isinstance(response['homeworks'], list):
+        logger.error('Некорректный ответ сервера.')
         raise exceptions.AnswerNotCorrect('Некорректный ответ сервера')
     return response['homeworks']
 
@@ -69,6 +71,7 @@ def parse_status(homework):
     homework_status = homework['status']
     verdict = HOMEWORK_STATUSES[homework_status]
     if homework_status not in HOMEWORK_STATUSES:
+        logger.error('Недокументированный статус домашней работы')
         raise exceptions.StatusIsNotCorrect
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
@@ -98,16 +101,6 @@ def main():
                 message = parse_status(homework)
                 send_message(bot, message)
                 logger.info('Сообщение о статусе ДЗ отправлено в чат')
-        except exceptions.AnswerNot200 as error:
-            logger.error(f'{error} Эндпоинт {ENDPOINT} недоступен.')
-        except exceptions.AnswerNotCorrect:
-            logger.error('Ответ API не словарь.')
-        except exceptions.Homeworksnotlist:
-            logger.error('Не получили список домашних работ.')
-        except exceptions.DictIsNotCorrect:
-            logger.error('Неверный ответ сервера')
-        except exceptions.StatusIsNotCorrect:
-            logger.error('Недокументированный статус домашней работы')
         except exceptions.NotAllTokens:
             logger.critical('Введены не все токены.')
         except exceptions.ErrorMessage:
