@@ -1,7 +1,7 @@
 # Telegram bot assistent
 
 
-Telegram bot accesses the API of the Practicum.Homework and find out the status of homework (whether thhe homework was taken to review, whether it was checked, and if it was checked, then the reviewer accepted it or returned it for revision).
+Telegram bot accesses the API of the Practicum.Homework and find out the status of homework (whether the homework was taken to review, whether it was checked, and if it was checked, then the reviewer accepted it or returned it for revision).
 
 ## What does bot do?
 - request to API of the Homework service once every 10 minutes and check the status of homework submitted for review
