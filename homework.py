@@ -32,7 +32,7 @@ HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 HOMEWORK_STATUSES = {
     'approved': 'Great result. Approved!',
-    'reviewing': 'On review',
+    'reviewing': 'On review.',
     'rejected': 'Review completed. Some changes are needed.'
 }
 
