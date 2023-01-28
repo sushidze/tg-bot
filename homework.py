@@ -31,19 +31,19 @@ HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 
 HOMEWORK_STATUSES = {
-    'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
-    'reviewing': 'Работа взята на проверку ревьюером.',
-    'rejected': 'Работа проверена: у ревьюера есть замечания.'
+    'approved': 'Great result. Approved!',
+    'reviewing': 'On review',
+    'rejected': 'Review completed. Some changes are needed.'
 }
 
 
 def send_message(bot, message):
-    """Отправляем сообщение в чат."""
+    """Send message to chat"""
     bot.send_message(TELEGRAM_CHAT_ID, message)
 
 
 def get_api_answer(current_timestamp):
-    """Запрос к API."""
+    """API call"""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     response = requests.get(
@@ -52,37 +52,37 @@ def get_api_answer(current_timestamp):
         params=params
     )
     if response.status_code != 200:
-        logger.error(f'{params} Эндпоинт {ENDPOINT} недоступен.')
+        logger.error(f'{params} endpoit {ENDPOINT} unavailable.')
         raise exceptions.AnswerNot200(response.status_code, params)
     return response.json()
 
 
 def check_response(response):
-    """Проверка ответа API на корректность."""
+    """Check API call for correctness"""
     if not isinstance(response['homeworks'], list):
-        logger.error('Некорректный ответ сервера.')
-        raise exceptions.AnswerNotCorrect('Некорректный ответ сервера')
+        logger.error('Incorrect server response')
+        raise exceptions.AnswerNotCorrect('Incorrect server responce')
     return response['homeworks']
 
 
 def parse_status(homework):
-    """Получение информации о конкретной домашней работе."""
+    """Get info about homework"""
     homework_name = homework['homework_name']
     homework_status = homework['status']
     verdict = HOMEWORK_STATUSES[homework_status]
     if homework_status not in HOMEWORK_STATUSES:
-        logger.error('Недокументированный статус домашней работы')
+        logger.error('Incorrect status')
         raise exceptions.StatusIsNotCorrect
-    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
+    return f'Status has been changed "{homework_name}". {verdict}'
 
 
 def check_tokens():
-    """Проверяем доступность переменных окружения."""
+    """Check access of venv variables"""
     return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
 
 
 def main():
-    """Основная логика работы бота."""
+    """Bot logic"""
     if not check_tokens():
 
         exit()
@@ -100,12 +100,12 @@ def main():
                 cash = homework_status
                 message = parse_status(homework)
                 send_message(bot, message)
-                logger.info('Сообщение о статусе ДЗ отправлено в чат')
+                logger.info('Message set to chat')
         except exceptions.NotAllTokens:
-            logger.critical('Введены не все токены.')
+            logger.critical('Not all tokes were given')
         except exceptions.ErrorMessage:
             logger.error(
-                f'Ошибка при отправке сообщения в чат {TELEGRAM_CHAT_ID}.'
+                f'Error during sending a message to chat {TELEGRAM_CHAT_ID}.'
             )
         finally:
             time.sleep(RETRY_TIME)

@@ -1,28 +1,28 @@
 class ErrorMessage(Exception):
-    """Исключение возникает из-за ошибок при отправке сообщения в чат."""
+    """Send message to chat exception"""
     pass
 
 
 class AnswerNot200(Exception):
-    """Исключение возникает из-за ошибки при запросе URL."""
+    """URL request error"""
     pass
 
 
 class Homeworksnotlist(Exception):
-    """Исключение возникает из-за того, что homeworks не список."""
+    """HW is not a list"""
     pass
 
 
 class AnswerNotCorrect(Exception):
-    """Исключение возникает из-за того, что ответ API не словарь."""
+    """API response is not a dictionary."""
     pass
 
 
 class StatusIsNotCorrect(Exception):
-    """Исключение возникает из-за того, что значения status нет в утверждённых."""
+    """Unknown status value"""
     pass
 
 
 class NotAllTokens(Exception):
-    """Исключение возникает из-за того, что заданы не все токены."""
+    """Not all tokens defined"""
     pass

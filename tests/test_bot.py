@@ -367,14 +367,14 @@ class TestHomework:
                 pass
             else:
                 assert False, (
-                    f'Убедитесь, что функция `{func_name}` выбрасывает ошибку '
-                    'при недокументированном статусе домашней работы в ответе от API'
+                    f'Make sure that function `{func_name}` raises error '
+                    'for unknown homework status in API response'
                 )
             if status_message is not None:
                 for hw_status in self.HOMEWORK_STATUSES:
                     assert not status_message.endswith(hw_status), (
-                        f'Убедитесь, что функция `{func_name} не возвращает корректный '
-                        'ответ при получении домашки с недокументированным статусом'
+                        f'Make sure that function `{func_name} does not return correct '
+                        'answer for unknown homework status'
                     )
 
     def test_parse_status_no_status_key(self, monkeypatch, random_timestamp,
@@ -415,14 +415,14 @@ class TestHomework:
                 pass
             else:
                 assert False, (
-                    f'Убедитесь, что функция `{func_name}` выбрасывает ошибку '
-                    'при отсутствии ключа `homework_status` домашней работы в ответе от API'
+                    f'Make sure that function `{func_name}` raises error '
+                    'if `homework_status` is absent in API response'
                 )
             if status_message is not None:
                 for hw_status in self.HOMEWORK_STATUSES:
                     assert not status_message.endswith(hw_status), (
-                        f'Убедитесь, что функция `{func_name} не возвращает корректный '
-                        'ответ при получении домашки без ключа `homework_status`'
+                        f'Make sure that function `{func_name} does not return '
+                        'correct reply without `homework_status` key'
                     )
 
     def test_parse_status_no_homework_name_key(self, monkeypatch, random_timestamp,
@@ -462,8 +462,8 @@ class TestHomework:
             pass
         else:
             assert False, (
-                f'Убедитесь, что функция `{func_name}` правильно работает '
-                'при отсутствии ключа `homework_name` в ответе от API'
+                f'Make sure that function `{func_name}` do work correctly '
+                'if `homework_name` key is absent in API response'
             )
 
     def test_check_response_no_homeworks(self, monkeypatch, random_timestamp,
@@ -496,9 +496,9 @@ class TestHomework:
             pass
         else:
             assert False, (
-                f'Убедитесь, что в функции `{func_name} '
-                'обрабатываете ситуацию, когда ответ от API '
-                'не содержит ключа `homeworks`, и выбрасываете ошибку'
+                f'Make sure that function `{func_name} '
+                'checks that API response does not have '
+                '`homeworks` key and raises error'
             )
 
     def test_check_response_not_dict(self, monkeypatch, random_timestamp,
@@ -537,9 +537,8 @@ class TestHomework:
             pass
         else:
             assert status, (
-                f'Убедитесь, что в функции `{func_name} '
-                'обрабатывается ситуация, при которой '
-                'ответ от API имеет некорректный тип.'
+                f'Make sure that function `{func_name} '
+                'checks API response incorrect type'
             )
 
     def test_check_response_homeworks_not_in_list(self, monkeypatch, random_timestamp,
@@ -577,9 +576,8 @@ class TestHomework:
             pass
         else:
             assert not homeworks, (
-                f'Убедитесь, что в функции `{func_name} '
-                'обрабатывается ситуация, при которой под ключом `homeworks` '
-                'домашки приходят не в виде списка в ответ от API.'
+                f'Make sure that function `{func_name} '
+                'checks `homeworks` key is not a list in API response'
             )
 
     def test_check_response_empty(self, monkeypatch, random_timestamp,
@@ -611,9 +609,8 @@ class TestHomework:
             pass
         else:
             assert False, (
-                f'Убедитесь, что в функции `{func_name} '
-                'обрабатываете ситуацию, когда ответ от API '
-                'содержит пустой словарь`, и выбрасываете ошибку'
+                f'Make sure that function `{func_name} '
+                'checks API response has empty dictionary and raises an error'
             )
 
     def test_api_response_timeout(self, monkeypatch, random_timestamp,
@@ -637,6 +634,5 @@ class TestHomework:
             pass
         else:
             assert False, (
-                f'Убедитесь, что в функции `{func_name}` обрабатываете ситуацию, '
-                'когда API возвращает код, отличный от 200'
+                f'Make sure that function `{func_name}` checks API response not equal to 200'
             )
